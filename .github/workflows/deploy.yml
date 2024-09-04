@@ -34,8 +34,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t "${{ secrets.AWS_ECR_REGISTRY }}:latest" .
-          docker push "${{ secrets.AWS_ECR_REGISTRY }}:latest"
+          docker build -t "${{ secrets.AWS_ECR_REGISTRY }}/medusa:latest" .
+          docker push "${{ secrets.AWS_ECR_REGISTRY }}/medusa:latest"
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
