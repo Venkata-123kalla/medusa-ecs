@@ -8,7 +8,7 @@
   "containerDefinitions": [
     {
       "name": "medusa",
-      "image": "396913738987.dkr.ecr.us-east-1.amazonaws.com/medusa-new:413dc2b46c8a27ca851ecb319d57ac3786b54feb",
+      "image": "396913738987.dkr.ecr.us-east-1.amazonaws.com/medusa-new:882446e277a80061d2d20876fe61a78515c652b6",
       "essential": true,
       "portMappings": [
         {
