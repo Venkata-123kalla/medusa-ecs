@@ -19,19 +19,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies
-        run: |
-          cd medusa-backend
-          npm install
-
-      - name: Build Medusa project
-        run: |
-          cd medusa-backend
-          npm run build
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
       - name: Log in to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
