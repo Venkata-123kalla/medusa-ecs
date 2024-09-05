@@ -29,7 +29,7 @@ const ADMIN_CORS =
 const STORE_CORS = process.env.STORE_CORS || "http://localhost:8000";
 
 const DATABASE_URL =
-  process.env.DATABASE_URL || "postgresql://postgres.jnecnbgstzzevwlnlisj:Meow@meowmeow@2002@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres";
+  process.env.DATABASE_URL || "YOUR DATABASE URL";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
