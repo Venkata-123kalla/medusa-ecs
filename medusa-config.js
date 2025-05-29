@@ -28,8 +28,10 @@ const ADMIN_CORS =
 // CORS to avoid issues when consuming Medusa from a client
 const STORE_CORS = process.env.STORE_CORS || "http://localhost:8000";
 
+// ✅ Updated PostgreSQL RDS connection string with escaped password
 const DATABASE_URL =
-  process.env.DATABASE_URL || "postgresql://medusa_owner:fz5Qx3cmbuNg@ep-wild-snow-a4lu3wxk.us-east-1.aws.neon.tech/medusa?sslmode=require";
+  process.env.DATABASE_URL ||
+  "postgresql://postgres:mahi%24123%23123@database-1.c7siaigcqkzd.ap-south-2.rds.amazonaws.com:5432/medusa";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
@@ -55,7 +57,9 @@ const plugins = [
 ];
 
 const modules = {
-  /*eventBus: {
+  // Optional Redis configuration
+  /*
+  eventBus: {
     resolve: "@medusajs/event-bus-redis",
     options: {
       redisUrl: REDIS_URL
@@ -66,7 +70,8 @@ const modules = {
     options: {
       redisUrl: REDIS_URL
     }
-  },*/
+  },
+  */
 };
 
 /** @type {import('@medusajs/medusa').ConfigModule["projectConfig"]} */
@@ -76,8 +81,7 @@ const projectConfig = {
   store_cors: STORE_CORS,
   database_url: DATABASE_URL,
   admin_cors: ADMIN_CORS,
-  // Uncomment the following lines to enable REDIS
-  // redis_url: REDIS_URL
+  // redis_url: REDIS_URL // Uncomment if using Redis
 };
 
 /** @type {import('@medusajs/medusa').ConfigModule} */
