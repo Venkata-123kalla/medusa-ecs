@@ -6,12 +6,13 @@ on:
       - main
 
 env:
-  AWS_REGION: us-east-1  # Replace with your AWS region
-  ECR_REPOSITORY: medusa # Replace with your ECR repository name
-  ECS_SERVICE: medusa-service  # Replace with your ECS service name
-  ECS_CLUSTER: medusa-cluster  # Replace with your ECS cluster name
-  ECS_TASK_DEFINITION: ecs-task-definition.json  # Path to the ECS task definition file
-  CONTAINER_NAME: medusa  # Name of the container in the task definition
+  AWS_REGION: ap-south-2
+  #DOCKERHUB_REPO: venkatamahendrakalla/medusa  # Replace with your Docker Hub repo
+  ECS_SERVICE: medusa-service
+  ECS_CLUSTER: medusa-cluster
+  ECS_TASK_DEFINITION: ecs-task-definition.json
+  CONTAINER_NAME: medusa
+  TERRAFORM_DIR: medusa-terraform-githubactions/terraform
 
 jobs:
   deploy:
@@ -20,7 +21,7 @@ jobs:
     environment: production
 
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
@@ -30,21 +31,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      - name: Terraform Init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+      - name: Terraform Destroy (remove previous infra)
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform destroy -auto-approve
+
+      - name: Terraform Apply (create new infra)
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform apply -auto-approve
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build and Push Docker Image
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          cd ..
+          docker build -t venkatamahendrakalla/medusa:latest .
+          docker tag venkatamahendrakalla/medusa:latest venkatamahendrakalla/medusa:latest
+          docker push venkatamahendrakalla/medusa:latest
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
+
+      - name: Render new ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
@@ -52,11 +62,10 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: Deploy Amazon ECS task definition
+      - name: Deploy updated task definition to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
-
