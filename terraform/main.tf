@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "ap-south-2"
 }
 
 # Data block to fetch default VPC
@@ -47,7 +47,7 @@ resource "aws_ecs_cluster" "main" {
 resource "aws_ecs_service" "medusa" {
   name            = "medusa-service"
   cluster         = aws_ecs_cluster.main.id
-  task_definition = "arn:aws:ecs:ap-south-1:975050037267:task-definition/medusa-task"
+  task_definition = "arn:aws:ecs:ap-south-2:975050037267:task-definition/medusa-task"
   desired_count   = 1
 
   # Define capacity provider strategy for Fargate Spot
