@@ -19,7 +19,7 @@ data "aws_subnets" "default" {
 resource "aws_security_group" "ecs" {
   vpc_id = data.aws_vpc.default.id
 
-  9egress {
+  ingress {
     from_port   = 0
     to_port     = 0
     protocol    = "all"
