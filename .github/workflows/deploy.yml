@@ -1,4 +1,4 @@
-name: Deploy to Amazon ECS #Deploy
+name: Deploy to Amazon ECS
 
 on:
   push:
@@ -7,12 +7,11 @@ on:
 
 env:
   AWS_REGION: ap-south-2
-  #DOCKERHUB_REPO: venkatamahendrakalla/medusa  # Replace with your Docker Hub repo
   ECS_SERVICE: medusa-service
   ECS_CLUSTER: medusa-cluster
   ECS_TASK_DEFINITION: ecs-task-definition.json
   CONTAINER_NAME: medusa
-  TERRAFORM_DIR: medusa-ecs/terraform
+  TERRAFORM_DIR: terraform  # ✅ Fixed the path
 
 jobs:
   deploy:
@@ -47,12 +46,12 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build and Push Docker Image
+        id: build-image  # ✅ Added ID
         run: |
-          cd ..
-          docker build -t venkatamahendrakalla/medusa:latest .
-          docker tag venkatamahendrakalla/medusa:latest venkatamahendrakalla/medusa:latest
-          docker push venkatamahendrakalla/medusa:latest
-
+          IMAGE=venkatamahendrakalla/medusa:latest
+          docker build -t $IMAGE .
+          docker push $IMAGE
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT  # ✅ Set output
 
       - name: Render new ECS task definition
         id: task-def
@@ -60,7 +59,7 @@ jobs:
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
           container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
+          image: ${{ steps.build-image.outputs.image }}  # ✅ Fixed reference
 
       - name: Deploy updated task definition to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
