@@ -19,7 +19,7 @@ data "aws_subnets" "default" {
 resource "aws_security_group" "ecs" {
   vpc_id = data.aws_vpc.default.id
 
-  egress {
+  9egress {
     from_port   = 0
     to_port     = 0
     protocol    = "all"
@@ -47,7 +47,7 @@ resource "aws_ecs_cluster" "main" {
 resource "aws_ecs_service" "medusa" {
   name            = "medusa-service"
   cluster         = aws_ecs_cluster.main.id
-  task_definition = "arn:aws:ecs:us-east-1:396913738987:task-definition/medusa-task"
+  task_definition = "arn:aws:ecs:ap-south-1:975050037267:task-definition/medusa-task"
   desired_count   = 1
 
   # Define capacity provider strategy for Fargate Spot
